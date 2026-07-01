@@ -1,0 +1,5 @@
+fault_type,true_positive_rows,false_negative_rows,false_positive_rows,recall,precision
+stuck_damper,399,33,0,0.924,1.0
+sat_sensor_drift,325,251,0,0.564,1.0
+low_delta_t_cooling_fault,504,0,0,1.0,1.0
+fan_performance_fault,288,0,0,1.0,1.0
