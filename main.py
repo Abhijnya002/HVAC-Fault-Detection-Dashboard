@@ -5,6 +5,7 @@ import os
 from generate_data import generate
 from fault_detection import run_all_rules, evaluate
 from visualize import plot_sensor_timeseries, plot_fault_counts, export_powerbi_summary
+from dashboard import build as build_dashboard
 
 os.makedirs("output", exist_ok=True)
 
@@ -26,6 +27,9 @@ def main():
     plot_sensor_timeseries(result)
     plot_fault_counts(result)
     export_powerbi_summary(result)
+
+    print("4. Building interactive dashboard...")
+    build_dashboard()
 
     print("\nDone. Outputs written to ./output/")
 
