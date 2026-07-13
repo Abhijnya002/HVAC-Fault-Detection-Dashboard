@@ -17,6 +17,7 @@ synthetic data so it can run anywhere with no building or database access.
 - [Detection rules](#detection-rules)
 - [Results](#results)
 - [Visual output](#visual-output)
+- [Interactive dashboard](#interactive-dashboard)
 - [Usage](#usage)
 - [Project structure](#project-structure)
 - [Limitations & what a production version would add](#limitations--what-a-production-version-would-add)
@@ -37,10 +38,10 @@ approach that:
 ## Pipeline overview
 
 ```
-generate_data.py  →  fault_detection.py  →  visualize.py
-   (simulate)          (detect + score)       (chart + export)
-        \___________________ main.py ___________________/
-                    (runs all three end to end)
+generate_data.py  →  fault_detection.py  →  visualize.py  →  dashboard.py
+   (simulate)          (detect + score)       (static charts)   (interactive HTML)
+        \_______________________ main.py _______________________/
+                        (runs all four end to end)
 ```
 
 1. **`generate_data.py`** simulates 2 weeks of 5-minute AHU sensor data and
@@ -140,6 +141,29 @@ distinguishable is the honest tradeoff of a threshold-based detector.
   type, shaped for a one-click import into Power BI or Excel to build an
   interactive dashboard on top.
 
+## Interactive dashboard
+
+`dashboard.py` builds `output/dashboard.html` — a single self-contained file
+(no external JS/CSS, no build step) that opens directly in a browser or
+serves as a static GitHub Pages page. It includes:
+
+- **KPI tiles** — sensor rows analyzed, flagged intervals, and average
+  detection precision/recall across all four fault types.
+- **Temperature trend chart** — supply/mixed air temp over the full 2-week
+  window with fault windows shaded, a synced crosshair, and hover tooltips
+  showing exact values (and which fault, if any, is active) at any point.
+- **Fault count and precision/recall bar charts** — per fault type, with
+  per-bar hover tooltips and direct value labels.
+- **Light/dark mode toggle** and a **"View as table"** fallback on every
+  chart, so every value is reachable without relying on hover or color.
+
+Open it straight from disk:
+
+```bash
+python dashboard.py       # writes output/dashboard.html
+open output/dashboard.html   # macOS; use `start` on Windows, `xdg-open` on Linux
+```
+
 ## Usage
 
 ```bash
@@ -159,10 +183,11 @@ Outputs land in `output/`:
 | `sensor_timeseries.png` | Sensor trend chart with fault windows shaded |
 | `detected_fault_counts.png` | Bar chart of detected fault counts by type |
 | `powerbi_fault_summary.csv` | Daily fault counts, ready for Power BI/Excel |
+| `dashboard.html` | Self-contained interactive dashboard (see below) |
 
 You can also run each stage independently — `python generate_data.py`,
-`python fault_detection.py`, `python visualize.py` — as long as the previous
-stage's CSV output already exists in `output/`.
+`python fault_detection.py`, `python visualize.py`, `python dashboard.py` —
+as long as the previous stage's CSV output already exists in `output/`.
 
 ## Project structure
 
@@ -170,10 +195,11 @@ stage's CSV output already exists in `output/`.
 .
 ├── generate_data.py       # Simulates AHU sensor data + injects faults
 ├── fault_detection.py     # Rule-based detection + precision/recall scoring
-├── visualize.py           # Charts + Power BI export
+├── visualize.py           # Static charts + Power BI export
+├── dashboard.py           # Interactive HTML dashboard
 ├── main.py                # Runs the full pipeline
 ├── requirements.txt
-└── output/                # Generated CSVs and charts (sample outputs committed)
+└── output/                # Generated CSVs, charts, and dashboard (sample outputs committed)
 ```
 
 ## Limitations & what a production version would add
